@@ -61,9 +61,7 @@ module BlackJackDomains
             end
         }
         def initialize(no:,suit:)
-            unless suit.is_a?(Suit)
-                raise  ArgumentError,"カードタイプクラス以外の型が渡されています。"
-            end 
+            raise  TypeError "カードタイプクラス以外の型が渡されています。" unless suit.is_a?(Suit)
             @no = CARD_NUMBER_TO_STRING.call(no) #もし11や13などの数値を文字　例　11＝＞J　に変換する
             @original_no = no
             @card_suit = suit
@@ -108,6 +106,29 @@ module BlackJackDomains
     end
 
 
+    class Deck 
+
+        def initialize(card_list:)
+            @deck_as_genelater = Fiber.new do |get_count|
+                while card_list.length >=  get_count or card_list.length >= 0
+                    card_list.shuffle!  
+                    Fiber.yield( card_list.pop(get_count) )
+                end
+                return Stopiteletion
+            end
+        end
+
+        def drow_card(count)
+            begin
+                cards = @deck_as_genelater.resume(count)
+            rescue StopIteletion
+                cards = []
+            end
+            return cards 
+        end
+
+    end
+
 
 
     class BasePlayer
@@ -131,7 +152,6 @@ module BlackJackDomains
             a_card.show_card_contents(self)
         end
         
-
     end     
 
     class Player < BasePlayer
