@@ -25,9 +25,17 @@ def check_deck(deck)
     player_1,player_2 = test_get_players(2) 
 
     puts "#{player_1}and#{player_2}"
-    
-    puts deck.drow_card(5)
-    
+    cnt = 0
+    20.times do
+        puts "---------------"
+        puts deck.drow_card(10)
+        puts "**--**--**--**--"
+        puts deck.drow_card(2)
+        puts "**--**--**--**--"
+        cnt +=1
+        puts cnt
+    end
+    puts "end" 
 end
 
 

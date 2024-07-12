@@ -6,18 +6,17 @@
 #・
 #
 #
+require_relative 'Services'
+include GameHandler
 
+#カードゲームで使用する基本的な要素をクラスで表現
+module CardGameElement
 
-module BlackJackDomains
-
-    class Suit #英語でトランプの柄をスートと言うそうです。　ｂｙ　google 先生
+    class Suit #英語でトランプの柄をスートと言うそうです。　google 先生調べ
         def initialize (suit_name)
             @suit_name = suit_name
         end 
         def to_s
-            return @suit_name
-        end
-        def get_suit_name
             return @suit_name
         end
     end 
@@ -41,13 +40,11 @@ module BlackJackDomains
 
 
 
+                
+    class CardNumericValue
 
-    class Card
-        
-        attr_reader :no,:suit
-        
-        CARD_NUMBER_TO_STRING = Proc.new {|no|
-            case no 
+        CARD_NUMBER_TO_STRING = Proc.new {|number_value|
+            case number_value 
                 when 1
                     "A" 
                 when 11
@@ -56,112 +53,111 @@ module BlackJackDomains
                     "Q"
                 when 13
                     "K"
+                when Float::INFINITY #ジョーカーの場合
+                    :JOKER.to_s
                 else
-                    no
+                    number_value.to_s
             end
         }
-        def initialize(no:,suit:)
-            raise  TypeError "カードタイプクラス以外の型が渡されています。" unless suit.is_a?(Suit)
-            @no = CARD_NUMBER_TO_STRING.call(no) #もし11や13などの数値を文字　例　11＝＞J　に変換する
-            @original_no = no
+
+        def initialize(numeric_value_as_int_or_Infinity)
+            @raw_value = numeric_value_as_int_or_Infinity
+            @notation = CARD_NUMBER_TO_STRING.call(@raw_value) 
+        end
+
+        def to_s
+            return @notation
+        end
+
+        def <=> (other_numeric)
+            raise TypeError.new("CardNumericValue以外の型と比較しようとしてますよ〜。") if other_numeric.instance_of?(self.class)
+            return @raw_value <=>  other_numeric.raw_value
+        end
+
+
+
+    #　カードクラス　
+    class Card
+        include Comparable
+       
+        #　カードの番号がもし1や12だった場合　エースやキングに変更する
+        
+
+        attr_reader :notation,:suit,:card_numeric_value
+        def initialize(card_numeric_value:,suit:)
+            raise  TypeError "カードのアイコンとなるスート型以外の型が渡されています。" unless suit.is_a?(Suit)
             @card_suit = suit
-            @is_show = false
+            @card_numeric_value = card_numeric_value
+            
         end 
 
         def to_s
-            "#{@card_suit}の #{@no}"
+           return "#{@card_suit}の #{@card_numeric_value}"
         end
 
         def show_card_contents(player)
-            puts "#{player}のカードは#{@card_suit}の#{@no}です。"
-        end 
+            puts "#{player}のカードは#{@card_suit}の#{@card_numeric_value}です。" 
+        end
+        
+        def <=> (other) 
+            raise TypeError.new("比較対象はカードクラスにしてください。") if other_card.is_a?(self.class)
+           return   @card_numeric_value <=> other.card_numeric_value
+        end
     end 
 
 
 
-
-    class WarCard < Card
-        include Comparable
-        attr_reader :amount
-        CHANGE_AMOUNT = Proc.new { |amount|
-            case amount
-                when 1
-                    14
-                when :JOKER
-                    15
-                else
-                    amount    
-            end 
-        }
-
-        def initialize(**kwargs)
-            super(**kwargs)
-            @amount = CHANGE_AMOUNT.call(kwargs[:no])
-        end
-
-        def <=> (other_card) 
-           return @amount <=> other_card.amount
-        end
-
-    end
-
-
-    class Deck 
+    class Deck
 
         def initialize(card_list:)
+            #　コルーチンを使用してみたかった・・・だけです
             @deck_as_genelater = Fiber.new do |get_count|
                 while card_list.length >=  get_count or card_list.length >= 0
                     card_list.shuffle!  
-                    Fiber.yield( card_list.pop(get_count) )
+                    get_count = Fiber.yield( card_list.pop(get_count))
                 end
-                return Stopiteletion
+                return card_list
             end
         end
 
-        def drow_card(count)
+        def draw_card(count)
+            return [] unless @deck_as_genelater.alive?
+
             begin
                 cards = @deck_as_genelater.resume(count)
-            rescue StopIteletion
-                cards = []
+            rescue StopIteletion => retrun_value
+                cards = retrun_value.result
             end
             return cards 
         end
-
     end
 
 
 
     class BasePlayer
-        NAME ="基本プレイヤー"
-        attr_accessor :player_name,:is_parent
-        def initialize(player_no=1)
-            @player_name = "プレイヤ-#{player_no}"
-            @has_cards = []
-            @total_amount = 0
-            @is_parent = false
+
+        def initialize(player_no)
+            @player_name = "プレイヤー #{player_no}"
+            @hand_of_cards = [] #手持ちのカード
+            @symbolic_order = SymbolicOrder.instance #プレイヤーが従うゲームのルール  シングルトンで実装しておりメソッドをヘルパーとして利用、ヘルパーの処理内容はgaem ruleとして注入する
         end
+
 
         def to_s
             return @player_name
         end 
-        def name
-            self.class::NAME#
-        end
-
-        def draw_card(a_card)
-            a_card.show_card_contents(self)
-        end
         
     end     
 
-    class Player < BasePlayer
-        NAME ="プレイヤー"
-
+    class WarCardPlayer < BasePlayer
+    
+        def initialize(player_no)
+            super(player_no)
+        end
     end 
 
     class Dealer < BasePlayer
         NAME = "ディーラー"
-
 
     end 
 

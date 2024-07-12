@@ -1,5 +1,5 @@
 require_relative 'domain'
-include BlackJackDomains
+include CardGameDomains
 
 CARD_SUITS = [
     CardTypes::HEART,
@@ -11,15 +11,13 @@ CARD_SUITS = [
 
 
 module Factorys
-    include BlackJackDomains
+    include CardGameDomains
 
     class DeckFactory #カードのデッキを作成する
         
 
-        def initialize(card_type: Card,has_joker:false)
-            @has_joker = has_joker
-            raise  TypeError("カードクラスではありません！！") unless  card_type <= Card
-            @card_type = card_type #<= CardクラスまたはCardクラスを継承したクラスオブジェクト
+        def initialize(has_joker:false)
+            @has_joker = has_joker #ジョーカーをデッキに含めるかのフラグ
         end
 
         def create_deck
@@ -27,24 +25,22 @@ module Factorys
             5.times do
                 cards.shuffle!()
             end
-
             return Deck.new(card_list: cards)
         end
 
         def create_cards
             all_cards = []
             CARD_SUITS.each do  |suit|
-                all_cards.concat(_create_cards_by(suit))
+                all_cards.concat(_create_cards_based_on(suit))
             end
-
-            all_cards<< @card_type.new(no: :JOKER,suit: Suit.new("JOKER")) if @has_joker
-
+            all_cards << Card.new(no: Float::INFINITY ,suit: Suit.new(:JOKER)) if @has_joker
             return all_cards
         end
         
         private
-        def _create_cards_by(suit)
-            return (1..13).map { |i| @card_type.new(no:i,suit:suit)}
+
+        def _create_cards_based_on(suit)
+            return (1..13).map { |card_number| Card.new(no:card_number,suit:suit)}
         end
     end
 
