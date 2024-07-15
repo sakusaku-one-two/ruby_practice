@@ -76,7 +76,7 @@ module GameProces
       next_state
     end
 
-    def can_do? #コンテキスト側のメインループを抜けるか継続かのグラグ
+    def can_do? # コンテキスト側のメインループを抜けるか継続かのグラグ
       @can_do
     end
 
@@ -109,16 +109,16 @@ module GameProces
           }
 
 
-      rank_group = sort_list.group_by { |player| player.len}
+      rank_group = sort_list.group_by { |player| player.len }
 
 
-      
-          
+
+
 
 
       rank_list = []
       cnt = 1
-      for rank,players in rank_group
+      for _, players in rank_group
         for player in players
           rank_list << "#{player}の手札の枚数は#{player.len}枚で#{cnt}位です "
         end
@@ -153,7 +153,7 @@ module GameProces
 
       winner_card_and_player = winner_list[0]
       win_player = winner_card_and_player[:player]
-      win_card = winner_card_and_player[:card]
+      winner_card_and_player[:card]
       current_context.old_card_stack.concat(current_context.current_field)
       field_card = current_context.old_card_stack.map { |card_and_player| card_and_player[:card] }
       current_context.old_card_stack = []
