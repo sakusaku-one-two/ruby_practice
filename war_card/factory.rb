@@ -36,7 +36,7 @@ module Factorys
       CARD_SUITS.each do  |suit|
         all_cards.concat(_create_cards_based_on(suit))
       end
-      all_cards << Card.new(card_numeric_value: Float::INFINITY, suit: Suit.new("最強")) if @has_joker
+      all_cards << Card.new(card_numeric_value:CardNumericValue.new(Float::INFINITY), suit: Suit.new("最強")) if @has_joker
       all_cards
     end
 

@@ -14,9 +14,9 @@ class GameSignale
 
   def method_missing(signale_name_to_call_method_name, *args, &block)
     signale_name, call_method_name = signale_name_to_call_method_name.to_s.split("__sig__")
-    
+
     return nil unless @signales.key? signale_name.to_s
-    
+
     @signales[signale_name].each do |observer|
       observer.send(call_method_name, &block)
     end

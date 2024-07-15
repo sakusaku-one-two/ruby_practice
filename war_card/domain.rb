@@ -87,7 +87,7 @@ module CardGameElement
     include Comparable
 
     # 　カードの番号がもし1や12だった場合　エースやキングに変更する
-    attr_reader :notation, :card_suit , :card_numeric_value
+    attr_reader :notation, :card_suit, :card_numeric_value
     def initialize(card_numeric_value:, suit:)
       raise TypeError "カードのアイコンとなるスート型以外の型が渡されています。" unless suit.is_a?(Suit)
       @card_suit = suit
@@ -95,7 +95,7 @@ module CardGameElement
     end
 
     def suit
-        @card_suit.suit_name
+      @card_suit.suit_name
     end
 
     def to_s
@@ -116,7 +116,7 @@ module CardGameElement
 
   class Deck
     attr_accessor :card_list, :deck_as_genelater
-     
+
     def initialize(card_list)
       set_gen_deck(card_list)
     end
@@ -150,8 +150,6 @@ module CardGameElement
     end
 
     def draw_card(count) # -> array[ ...crad ] or  []
-      
-
       begin
         cards = @deck_as_genelater.resume(count)
       rescue StopIteletion => retrun_value
@@ -199,7 +197,6 @@ module CardGameElement
 
 
   class Player
-
     def initialize(player_name)
       @player_name = player_name
       @hand_of_cards = HandOfCards.new(self) # 手持ちのカード
@@ -212,11 +209,11 @@ module CardGameElement
     end
 
     def insert_drawn_card_list(card_list)
-        @hand_of_cards.insert_drawn_card_list(card_list)
+      @hand_of_cards.insert_drawn_card_list(card_list)
     end
 
     def len
-        @hand_of_cards.len
+      @hand_of_cards.len
     end
 
     def present_a_card
@@ -236,8 +233,7 @@ end
 
 
 def deck_test
-    deck = CardGameElement::Deck.new(['ino','saku'])
-    puts deck.draw_card(2)
-    puts deck.draw_card(2)
+  deck = CardGameElement::Deck.new(["ino", "saku"])
+  puts deck.draw_card(2)
+  puts deck.draw_card(2)
 end
-
