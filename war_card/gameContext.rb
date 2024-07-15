@@ -108,13 +108,7 @@ module GameProces
             player_2.len <=> player_1.len
           }
 
-
       rank_group = sort_list.group_by { |player| player.len }
-
-
-
-
-
 
       rank_list = []
       cnt = 1
@@ -148,8 +142,6 @@ module GameProces
         puts loser_list.map { |player| "#{player}の手札のがなくなりました。" }.join(" ")
         return ResultState.new(is_continue: true, message: "ゲーム終了")
       end
-
-
 
       winner_card_and_player = winner_list[0]
       win_player = winner_card_and_player[:player]
@@ -258,7 +250,7 @@ module GameProces
         def deck_cards_into_player(deck, players)
           players.each do |player|
             player.setup_hand_of_cards(
-                deck.draw_card(10)
+                deck.draw_card(5)
               )
           end
         end
