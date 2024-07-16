@@ -29,13 +29,6 @@ module GameProces
       @players.concat(players)
     end
 
-    def rank
-      sort_list = players.sort { |player_1, player_2|
-            player_2.len <=> player_1.len
-          }
-      rank_listt = sort_list.map { |player| "#{player}の手札の枚数は#{player.len}枚です。 " }
-      puts rank_listt.join(" ")
-    end
 
     # ゲームのメインループ
     def run(first_state)
@@ -76,7 +69,7 @@ module GameProces
       next_state
     end
 
-    def can_do? # コンテキスト側のメインループを抜けるか継続かのグラグ
+    def can_do? #コンテキスト側のメインループを抜けるか継続かのグラグ
       @can_do
     end
 
@@ -108,19 +101,12 @@ module GameProces
             player_2.len <=> player_1.len
           }
 
-
-      rank_group = sort_list.group_by { |player| player.len }
-
-
-
-
-
-
+      rank_group = sort_list.group_by { |player| player.len}
       rank_list = []
       cnt = 1
-      for _, players in rank_group
+      for rank,players in rank_group
         for player in players
-          rank_list << "#{player}の手札の枚数は#{player.len}枚で#{cnt}位です "
+          rank_list << " #{player}の手札の枚数は#{player.len}枚で#{cnt}位です "
         end
         cnt += 1
       end
@@ -149,16 +135,13 @@ module GameProces
         return ResultState.new(is_continue: true, message: "ゲーム終了")
       end
 
-
-
       winner_card_and_player = winner_list[0]
       win_player = winner_card_and_player[:player]
-      winner_card_and_player[:card]
       current_context.old_card_stack.concat(current_context.current_field)
-      field_card = current_context.old_card_stack.map { |card_and_player| card_and_player[:card] }
+      field_cards = current_context.old_card_stack.map { |card_and_player| card_and_player[:card] }
       current_context.old_card_stack = []
-      puts "#{win_player}が勝ちました 。#{win_player}はカードを#{field_card.size}枚もらいました。"
-      win_player.insert_drawn_card_list(field_card)
+      puts "#{win_player}が勝ちました 。#{win_player}はカードを#{field_cards.size}枚もらいました。"
+      win_player.insert_drawn_card_list(field_cards)
 
       loser_list = empty_player(current_context.players)
 
@@ -196,10 +179,7 @@ module GameProces
         }
       end
 
-      def winner_insert_all_cards(win_player, current_field_list)
-        field_card = current_field_list.map { |card_and_player| card_and_player[:card] }
-        win_player.insert_drawn_card_list(field_card)
-      end
+      
   end
 
   # ⇑⇑⇑
@@ -258,7 +238,7 @@ module GameProces
         def deck_cards_into_player(deck, players)
           players.each do |player|
             player.setup_hand_of_cards(
-                deck.draw_card(10)
+                deck.draw_card(5)
               )
           end
         end
